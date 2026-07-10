@@ -1,7 +1,7 @@
 import './style.css';
 import { QUESTIONS, PHASE_LABELS } from './questions';
 import type { Phase, ReviewState } from './types';
-import { mockDecisionStore } from './firebase';
+import { getDecisionStore, mockDecisionStore } from './firebase';
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 if (!app) throw new Error('Missing app root');
@@ -254,9 +254,10 @@ function renderReport(): void {
 
   document.querySelector<HTMLButtonElement>('#save')?.addEventListener('click', async () => {
     const decision = state.answers.get('0.1') ?? state.answers.get('intro') ?? 'unknown';
-    await mockDecisionStore.save({ decision, status: 'draft' });
+    const store = await getDecisionStore();
+    await store.save({ decision, status: 'draft', report });
     const s = document.querySelector<HTMLParagraphElement>('#save-status');
-    if (s) s.textContent = '已儲存到 mock store（console.info）';
+    if (s) s.textContent = '已儲存（mock 或 Firestore，視環境設定）';
   });
 
   document.querySelector<HTMLButtonElement>('#restart')?.addEventListener('click', () => {
